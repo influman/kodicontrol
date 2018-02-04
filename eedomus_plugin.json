@@ -1,0 +1,253 @@
+{
+	"plugin_id": "kodicontrol",
+	"name_fr": "KODIcontrol",
+	"icon": "kodi.png",
+	"version": "1.1",
+	"creation_date": "2017-11-07",
+	"modification_date": "2017-12-18",
+	"author": "Influman",
+	"description_fr": "Contrôles du médiacenter <a href='https://kodi.tv' target='_blank'>KODI</a>",
+	"description_en": "",
+	"description_es": "",
+	"description_it": "",
+	"description_de": "",
+	"forum_link": "http://forum.eedomus.com/viewtopic.php?f=50&t=6109",
+	"parameters":
+  [
+		{
+			"parameter": "IP", 
+			"description": "Adresse IP du médiacenter",
+			"xtype": "textfield",
+			"default_value": "192.168.0.",
+			"field": "width:130, allowBlank:false, maskRe:/[0-9.]/, regex:/^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$/, regexText:'Adresse IP invalide [0-255].[0-255].[0-255].[0-255]'"
+		},
+		{
+			"parameter": "PORT", 
+			"description": "Port de connexion (ex. 8080)",
+			"xtype": "textfield",
+			"default_value": "8080",
+			"field": "width:150, allowBlank:false"
+		},
+		{
+			"parameter": "USER", 
+			"description": "Login",
+			"xtype": "textfield",
+			"default_value": "kodi",
+			"field": "width:150, allowBlank:false"
+		},
+		{
+			"parameter": "PASS", 
+			"description": "Mot de passe",
+			"xtype": "textfield",
+			"default_value": "kodi",
+			"field": "width:150, allowBlank:false"	
+		},
+		{
+			"parameter": "MAC", 
+			"description": "Adresse MAC (pour WOL)",
+			"xtype": "textfield",
+			"default_value": "aa:bb:cc:dd:ee:ff",
+			"field": "width:300, allowBlank:true"	
+		}
+	 ],
+	"scripts":
+	[
+		{
+			"name": "kodicontrol.php"
+		}
+	],
+	"devices":
+  [
+  		{
+			"device_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Power",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/tools/?action=ping&url=[VAR1]",
+				"RAW_XPATH": "/eedomus/result * 100",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "OFF", "icon": "default_off.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22System.Shutdown%22,%22id%22:1}" },
+				{ "value": "100", "description": "ON", "icon": "default_on.png", "http_url": "http://localhost/tools/", "http_type": "GET",  "http_params": "?action=wol&mac=plugin.parameters.MAC" }
+			]
+		},
+		{
+			"device_id": "controles",
+			"parent_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Controles",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "",
+				"RAW_XPATH": "",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "PlayPause", "icon": "play.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Player.PlayPause%22,%22params%22:{%22playerid%22:1}}" },
+				{ "value": "1", "description": "Stop", "icon": "audio_stop.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Player.Stop%22,%22params%22:{%22playerid%22:1}}" },
+				{ "value": "2", "description": "Suivant", "icon": "audio_next.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Player.GoTo%22,%22params%22:{%22playerid%22:1,%22to%22:%22next%22},%22id%22:1}" },
+				{ "value": "3", "description": "Précédent", "icon": "audio_prev.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Player.GoTo%22,%22params%22:{%22playerid%22:1,%22to%22:%22previous%22},%22id%22:1}" },
+				{ "value": "4", "description": "Volume+", "icon": "plus.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:%22increment%22},%22id%22:1}" },
+				{ "value": "5", "description": "Volume-", "icon": "minus.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:%22decrement%22},%22id%22:1}" }
+			]
+		},
+		{
+			"device_id": "notif",
+			"parent_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Notifications",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "",
+				"RAW_XPATH": "",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "Sonnette", "icon": "default.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22GUI.ShowNotification%22,%22params%22:{%22title%22:%22Message%20Eedomus%22,%22message%22:%22On%20sonne%20a%20la%20porte%22,%22displaytime%22:10000},%22id%22:1}" },
+				{ "value": "1", "description": "Portail", "icon": "default.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22GUI.ShowNotification%22,%22params%22:{%22title%22:%22Message%20Eedomus%22,%22message%22:%22Ouverture%20du%20portail%22,%22displaytime%22:10000},%22id%22:1}" }
+			]
+		},
+		{
+			"device_id": "playlist",
+			"parent_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Playlist",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "",
+				"RAW_XPATH": "",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "Exemple PlayList", "icon": "default.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22id%22:1,%22method%22:%22Player.Open%22,%22params%22:{%22item%22:{%22file%22:%22special:%2F%2Fprofile%2Fplaylists%2Fmusic%2FNOMPLAYLIST.m3u%22}}}" }
+			]
+		},
+		{
+			"device_id": "volume",
+			"parent_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Volume",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=kodicontrol.php&action=volume&ip=[VAR1]&port=[VAR2]&userpass=[VAR3]",
+				"RAW_XPATH": "/KODI/VOLUME",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "0%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "5", "description": "5%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "10", "description": "10%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "15", "description": "15%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "20", "description": "20%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "25", "description": "25%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "30", "description": "30%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "35", "description": "35%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "40", "description": "40%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "45", "description": "45%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "50", "description": "50%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "55", "description": "55%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "60", "description": "60%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "65", "description": "65%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "70", "description": "70%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "75", "description": "75%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "80", "description": "80%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "85", "description": "85%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "90", "description": "90%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "95", "description": "95%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" },
+				{ "value": "100", "description": "100%", "icon": "lecteur_musique.png", "http_url": "http://[VAR3]@[VAR1]:[VAR2]/jsonrpc", "http_type": "GET",  "http_params": "?request={%22jsonrpc%22:%222.0%22,%22method%22:%22Application.SetVolume%22,%22params%22:{%22volume%22:[RAW_VALUE]}, %22id%22:1}" }
+			]
+		},
+		{
+			"device_id": "playing",
+			"parent_id": "power",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "KODI - Statut",
+			"icon": "kodi.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "string",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=kodicontrol.php&action=lecture&ip=[VAR1]&port=[VAR2]&userpass=[VAR3]",
+				"RAW_XPATH": "/KODI/LECTURE",
+				"POLLING": "1"
+			}
+		},
+		{
+			"device_id": "parental",
+			"parent_id": "power",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "KODI - Controle parental",
+			"icon": "kodi.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.IP",
+				"VAR2": "plugin.parameters.PORT",
+				"VAR3": "plugin.parameters.USER:plugin.parameters.PASS",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=kodicontrol.php&action=parental&ip=[VAR1]&port=[VAR2]&userpass=[VAR3]&status=poll",
+				"RAW_XPATH": "/KODI/PARENTAL",
+				"POLLING": "1"
+			},
+			"values":
+			[
+				{ "value": "Inactif", "description": "--", "icon": "screen_b2.png", "http_url": "http://localhost/script/?exec=kodicontrol.php", "http_type": "GET",  "http_params": "&action=parental&ip=[VAR1]&port=[VAR2]&userpass=[VAR3]&status=[RAW_VALUE]" },
+				{ "value": "Actif", "description": "horreur,adulte,epouvante", "icon": "screen_b1.png", "http_url": "http://localhost/script/?exec=kodicontrol.php", "http_type": "GET",  "http_params": "&action=parental&ip=[VAR1]&port=[VAR2]&userpass=[VAR3]&status=[RAW_VALUE]" }
+			]
+		}
+	]
+}
